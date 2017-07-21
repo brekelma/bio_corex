@@ -263,12 +263,13 @@ class Corex(object):
         """
         self.n_samples, self.n_visible = X.shape[:2]
         if self.marginal_description == 'discrete':
+            '''TO DO: Map discrete values to 0...k range'''
             values_in_data = set(np.unique(X).tolist())-set([self.missing_values])
             self.dim_visible = int(max(values_in_data)) + 1
             if not set(range(self.dim_visible)) == values_in_data:
                 print("Warning: Data matrix values should be consecutive integers starting with 0,1,...")
-            assert max(values_in_data) <= 32, "Due to a limitation in np.choice, discrete valued variables" \
-                                              "can take values from 0 to 31 only."
+            #assert max(values_in_data) <= 32, "Due to a limitation in np.choice, discrete valued variables" \
+            #                                  "can take values from 0 to 31 only."
         self.initialize_representation()
 
     def calculate_p_y(self, p_y_given_x):
@@ -498,8 +499,12 @@ class Corex(object):
 
         elif self.marginal_description == 'discrete':
             # Discrete data: should be non-negative integers starting at 0: 0,...k. k < 32 because of np.choose limits
-            logp = [theta[np.newaxis, ...] for theta in thetai]  # Size dim_visible by n_hidden by dim_hidden
-            return np.choose(xi.reshape((-1, 1, 1)), logp).transpose((1, 0, 2))
+            #logp = [theta[np.newaxis, ...] for theta in thetai]  # Size dim_visible by n_hidden by dim_hidden
+            #return np.choose(xi.reshape((-1, 1, 1)), logp).transpose((1, 0, 2))
+            result = np.zeros((xi.reshape((-1, 1, 1)).shape[0], thetai.shape[1], thetai.shape[2]))
+            for i in range(len(xi)):
+                result[i, :, :] = thetai[xi[i], :, :] 
+            return result.transpose(1,0,2)
 
         else:
             print('Marginal description "%s" not implemented.' % self.marginal_description)

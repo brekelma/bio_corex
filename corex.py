@@ -501,6 +501,7 @@ class Corex(object):
             # Discrete data: should be non-negative integers starting at 0: 0,...k. k < 32 because of np.choose limits
             #logp = [theta[np.newaxis, ...] for theta in thetai]  # Size dim_visible by n_hidden by dim_hidden
             #return np.choose(xi.reshape((-1, 1, 1)), logp).transpose((1, 0, 2))
+            xi = np.array([int(xi[i]) for i in range(len(xi))]) if isinstance(xi, list) else xi
             result = np.zeros((xi.reshape((-1, 1, 1)).shape[0], thetai.shape[1], thetai.shape[2]))
             for i in range(len(xi)):
                 result[i, :, :] = thetai[xi[i], :, :] 
